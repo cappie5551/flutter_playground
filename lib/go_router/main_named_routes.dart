@@ -46,19 +46,19 @@ class App extends StatelessWidget {
   // add the login info into the tree as app state that can change over time
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-    routeInformationProvider: _router.routeInformationProvider,
-    routeInformationParser: _router.routeInformationParser,
-    routerDelegate: _router.routerDelegate,
-    title: title,
-    debugShowCheckedModeBanner: false,
-  );
+        routeInformationProvider: _router.routeInformationProvider,
+        routeInformationParser: _router.routeInformationParser,
+        routerDelegate: _router.routerDelegate,
+        title: title,
+        debugShowCheckedModeBanner: false,
+      );
 
   late final GoRouter _router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) =>
-        const HomeScreen(),
+            const HomeScreen(),
         routes: [
           GoRoute(
               name: 'family',
@@ -68,16 +68,15 @@ class App extends StatelessWidget {
                   fid: state.params['fid']!,
                 );
               },
-          routes: [
-            GoRoute(
-              name: 'person',
-              path: 'person/:pid',
-              builder: (context, state) {
-                return PersonScreen(
-                  fid: state.params['fid']!, pid; state.params['pid']!);
-              }
-            )
-          ]),
+              routes: [
+                GoRoute(
+                    name: 'person',
+                    path: 'person/:pid',
+                    builder: (context, state) {
+                      return PersonScreen(
+                          fid: state.params['fid']!, pid: state.params['pid']!);
+                    })
+              ]),
         ],
       ),
     ],
@@ -99,7 +98,10 @@ class HomeScreen extends StatelessWidget {
           for (final String fid in _families.keys)
             ListTile(
               title: Text(_families[fid]['name']),
-              onTap: () => context.go(context.namedLocation('family', params: <String, String>{'fid': fid}),),
+              onTap: () => context.go(
+                context.namedLocation('family',
+                    params: <String, String>{'fid': fid}),
+              ),
             ),
         ],
       ),
@@ -119,7 +121,8 @@ class FamilyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> people = _families[fid]['people'] as Map<String, dynamic>;
+    final Map<String, dynamic> people =
+        _families[fid]['people'] as Map<String, dynamic>;
     return Scaffold(
       appBar: AppBar(
         title: Text(_families[fid]['name']),
@@ -129,7 +132,13 @@ class FamilyScreen extends StatelessWidget {
           for (final String pid in people.keys)
             ListTile(
               title: Text(people[pid]['name']),
-              onTap: () => context.go(context.namedLocation('person', params: <String, String>{'fid': fid, 'pid': pid},queryParams: <String, String>{'qid': 'quid'},),),
+              onTap: () => context.go(
+                context.namedLocation(
+                  'person',
+                  params: <String, String>{'fid': fid, 'pid': pid},
+                  queryParams: <String, String>{'qid': 'quid'},
+                ),
+              ),
             ),
         ],
       ),
@@ -137,11 +146,28 @@ class FamilyScreen extends StatelessWidget {
   }
 }
 
+/// The person screen.
 class PersonScreen extends StatelessWidget {
-  const PersonScreen({Key? key}) : super(key: key);
+  const PersonScreen({
+    required this.fid,
+    required this.pid,
+    Key? key,
+  }) : super(key: key);
+
+  /// The id of family this person belong to.
+  final String fid;
+
+  /// The id of the person to be displayed.
+  final String pid;
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final Map<String, dynamic> family = _families[fid];
+    final Map<String, dynamic> person = family['people'][pid];
+    return Scaffold(
+      appBar: AppBar(title: Text(person['name'])),
+      body: Text(
+          '${person['name']} ${family['name']} is ${person['age']} years old'),
+    );
   }
 }
